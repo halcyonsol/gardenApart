@@ -1,0 +1,15 @@
+# One Node process owns the in-memory rooms. Do not scale to multiple instances
+# without adding shared storage and a Socket.IO adapter first.
+services:
+  - type: web
+    name: a-garden-apart
+    runtime: node
+    plan: free
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"

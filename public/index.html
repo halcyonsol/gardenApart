@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#303A57">
+  <title>A Garden Apart — a garden for two</title>
+  <meta name="description" content="Two strangers. One garden. A quiet cooperative garden where one plants and the other tends the weather.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 40 40%27%3E%3Ctext y=%2732%27 font-size=%2734%27%3E✳%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/style.css">
+  <script defer src="/socket.io/socket.io.js"></script>
+  <script defer src="/vendor/p5.min.js"></script>
+  <script defer src="/sketch.js"></script>
+  <script defer src="/client.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="wordmark" href="/">✳ <span>A Garden Apart</span></a>
+    <span id="connection" class="connection" role="status">Connecting…</span>
+  </header>
+  <main>
+    <section id="intro" class="intro">
+      <p class="eyebrow">A small experiment in togetherness</p>
+      <h1>A Garden<br><em>Apart</em><span class="title-star" aria-hidden="true">✳</span></h1>
+      <p class="tagline">Some things cannot grow alone.</p>
+      <button id="enter" class="primary">Enter the Garden <span aria-hidden="true">↗</span></button>
+      <div class="intro-art" aria-hidden="true"><svg viewBox="0 0 400 140"><path d="M40 140Q100 80 155 120T360 130" fill="none" stroke="#637b78"/><g fill="none" stroke="#7f987c" stroke-width="1.5"><path d="M145 133Q155 87 141 43M145 109Q115 104 117 82Q143 83 147 100M149 90Q180 83 174 62Q153 65 149 80M240 133Q224 90 241 54M231 103Q202 97 207 79Q229 82 231 97M233 89Q260 89 264 70Q242 68 236 82"/></g><g fill="#d1b9d8"><ellipse cx="141" cy="31" rx="8" ry="17"/><ellipse cx="126" cy="43" rx="17" ry="8" transform="rotate(25 126 43)"/><ellipse cx="153" cy="45" rx="17" ry="8" transform="rotate(-25 153 45)"/></g><g fill="#e8cca0"><circle cx="141" cy="44" r="5"/><circle cx="241" cy="52" r="8"/><circle cx="79" cy="65" r="1.5"/><circle cx="300" cy="44" r="2"/></g></svg></div><p class="intro-note">Two strangers. One garden.<br>Neither can make it bloom alone.</p><p class="small muted">Two players · about 3–5 minutes · a little patience</p>
+    </section>
+
+    <section id="lobby" class="lobby" hidden aria-labelledby="lobby-title">
+      <p class="eyebrow">01 / Find your place</p>
+      <h2 id="lobby-title">Every garden needs<br><em>another hand.</em></h2>
+      <p class="muted">Choose your role. Invite someone to take the other.</p>
+      <form id="join-form">
+        <fieldset>
+          <legend>Your part in the garden</legend>
+          <div class="role-options">
+            <label class="role-card"><input type="radio" name="role" value="gardener" checked><span class="role-icon" aria-hidden="true">♧</span><strong>The Gardener</strong><span>You'll plant the beginnings.</span></label>
+            <label class="role-card"><input type="radio" name="role" value="keeper"><span class="role-icon" aria-hidden="true">☼</span><strong>The Keeper</strong><span>You'll make room for growth.</span></label>
+          </div>
+        </fieldset>
+        <label class="code-label" for="room-code">Have an invitation? Enter the room code.</label>
+        <div class="join-row"><input id="room-code" name="code" maxlength="6" placeholder="e.g. A1B2C3" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-describedby="code-help"><button id="join" class="primary" type="submit" disabled>Join or create garden ↗</button></div>
+        <p id="code-help" class="small muted">Leave the code empty to start a new garden.</p>
+        <p id="join-error" class="error" role="alert"></p>
+      </form>
+    </section>
+
+    <section id="garden" hidden aria-labelledby="garden-title">
+      <div class="garden-heading"><div><p class="eyebrow">02 / A shared little world</p><h2 id="garden-title">Our quiet corner.</h2></div><div class="invitation"><span class="small muted">Room <strong id="current-code"></strong></span><button id="copy" class="secondary">Copy invitation ↗</button><span id="copy-status" class="small" role="status"></span></div></div>
+      <div class="garden-layout">
+        <div class="scene-wrap"><div id="garden-canvas" role="img" aria-label="A twilight garden. Use the nine plot buttons below to plant seeds."></div><div id="plot-targets" class="plot-targets" role="group" aria-label="Nine garden plots"></div><div class="scene-caption"><span id="scene-message">A LITTLE PATIENCE, A LITTLE CARE</span><span id="elapsed">00:00</span></div></div>
+        <aside class="garden-sidebar">
+          <p class="eyebrow">Here, together</p>
+          <div class="player"><span>♧ &nbsp; Gardener <small id="gardener-you"></small></span><span id="gardener-status" class="player-status">Available</span></div>
+          <div class="player"><span>☼ &nbsp; Keeper <small id="keeper-you"></small></span><span id="keeper-status" class="player-status">Available</span></div>
+          <p id="presence" class="presence" role="status"></p>
+          <div class="conditions">
+            <div><label for="rainfall">Rainfall</label><output id="rain" for="rainfall">55%</output></div>
+            <input id="rainfall" type="range" min="0" max="100" value="55" aria-describedby="rain-help" disabled>
+            <p id="rain-help" class="range-help">Happy between 35–75%</p>
+            <div><label for="sunlight">Sunlight</label><output id="sun" for="sunlight">55%</output></div>
+            <input id="sunlight" type="range" min="0" max="100" value="55" aria-describedby="sun-help" disabled>
+            <p id="sun-help" class="range-help">Happy between 35–80%</p>
+          </div>
+          <p id="weather-health" class="health" role="status">The conditions are gentle.</p>
+          <div class="bloom-counter"><span>Flowers in bloom</span><strong id="blooms">0 <small>/ 6</small></strong></div>
+          <div id="bloom-dots" class="bloom-dots" aria-hidden="true"></div>
+          <p id="role-help" class="small muted"></p>
+          <p id="action-error" class="error" role="alert"></p><button id="leave" class="text-button">Leave this garden</button>
+        </aside>
+      </div>
+      <div id="completion" class="completion" hidden tabindex="-1" aria-labelledby="completion-title">
+        <span class="completion-flower" aria-hidden="true">✳</span>
+        <p class="eyebrow">Something beautiful, made together</p>
+        <h2 id="completion-title">Look what grew <em>between us.</em></h2>
+        <p>Six flowers. Two pairs of hands. One little world, changed.</p>
+        <button id="restart" class="primary">Begin a new garden ↗</button>
+        <p id="restart-help" class="small muted">Both of you will begin again, in this same room.</p>
+      </div>
+      <div class="garden-guide"><p><span>01</span> Plant a beginning.<small>The Gardener places seeds in the nine plots.</small></p><p><span>02</span> Give it time.<small>The Keeper balances rain and light. Seeds need about three minutes of care.</small></p><p><span>03</span> Grow together.<small>Bloom six flowers. Struggling plants can always recover.</small></p></div>
+    </section>
+  </main>
+  <footer><span>A GARDEN APART</span><span>A place to grow, together.</span><span>TWO HANDS · ONE GARDEN</span></footer>
+</body>
+</html>
