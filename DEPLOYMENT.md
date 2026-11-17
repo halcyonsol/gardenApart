@@ -1,5 +1,13 @@
 # Deploy A Garden Apart
 
+## Live deployment
+
+- URL: https://a-garden-apart.onrender.com
+- Verified November 17, 2026 with `npm run test:remote -- https://a-garden-apart.onrender.com`.
+- Passed: health, two WebSocket clients, roles, synchronized planting/weather, and server growth. The temporary clients released their roles after testing.
+- Source published before deployment: `702f0c147ca36394a2f72471919c2d85698b9952`. The hosting dashboard commit was not independently inspected.
+- Full completion/replay passed local Chrome testing. The separate-device human acceptance test below remains unverified.
+
 The app must run as a **Node web service**, not a static site. Express and Socket.IO share one HTTP server. It binds to `0.0.0.0` and listens on `process.env.PORT || 3000`.
 
 ## Render Blueprint

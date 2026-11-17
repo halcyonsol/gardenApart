@@ -85,6 +85,6 @@ This creates a temporary garden, connects two clients, checks shared planting/we
 
 ## Deployment
 
-The repository is [halcyonsol/gardenApart](https://github.com/halcyonsol/gardenApart). See [DEPLOYMENT.md](DEPLOYMENT.md) for the Render setup and two-device acceptance test. A Render Blueprint is included; deployment still requires access to a Render account.
+Play at **[a-garden-apart.onrender.com](https://a-garden-apart.onrender.com)**. The repository is [halcyonsol/gardenApart](https://github.com/halcyonsol/gardenApart). See [DEPLOYMENT.md](DEPLOYMENT.md) for hosting details and the two-device acceptance test.
 
-The complete gameplay and visual phases are implemented. Hosting preparation is complete. A public deployment and live remote-client verification must be recorded separately; local tests do not establish that a public service is live.
+The game is publicly deployed. On November 17, 2026, the live two-client smoke check passed: health endpoint, WebSocket connections, roles, shared planting/weather, and server-driven growth. Full completion and replay were tested locally in Chrome; a full three-minute session on two separate physical devices has not been verified.
