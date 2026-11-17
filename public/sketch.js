@@ -23,8 +23,11 @@ window.createGardenSketch = function () {
     function drawSky(state, time) {
       const w = p.width, h = p.height;
       const light = state.sunlight / 100;
-      const top = p.color('#26324e');
-      const bottom = p.lerpColor(p.color('#596976'), p.color('#a19687'), light * .55);
+      // Twilight becomes daylight as the Keeper increases sunlight.
+      const daylight = p.constrain((light - .3) / .4, 0, 1);
+      const night = 1 - daylight;
+      const top = p.lerpColor(p.color('#26324e'), p.color('#788f9c'), daylight);
+      const bottom = p.lerpColor(p.color('#596976'), p.color('#c5baa0'), daylight);
       p.background(top);
       p.noFill();
       p.strokeWeight(4);
@@ -36,15 +39,27 @@ window.createGardenSketch = function () {
       for (let i = 0; i < 55; i++) {
         const x = ((i * 173 + 41) % 997) / 997 * w;
         const y = ((i * 71 + 33) % 257) / 257 * h * .45;
-        p.fill(229, 228, 207, 75 + Math.sin(time * .65 + i) * 45);
+        p.fill(229, 228, 207, (75 + Math.sin(time * .65 + i) * 45) * night);
         p.circle(x, y, i % 4 === 0 ? 2 : 1);
       }
-      // Soft moonlight is made from translucent circles, without image assets.
+      // Crossfade the moon and sun. Clip the crescent instead of painting a
+      // dark circle over it, so its cutout matches the changing sky exactly.
       for (let i = 5; i > 0; i--) {
-        p.fill(232, 204, 160, 4); p.circle(w * .79, h * .17, 45 + i * 23);
+        p.fill(232, 204, 160, 4 + daylight * 5); p.circle(w * .79, h * .17, 45 + i * 23);
       }
-      p.fill('#e8cca0'); p.circle(w * .79, h * .17, 35);
-      p.fill('#36435c'); p.circle(w * .79 - 10, h * .17 - 5, 31);
+      const skyX = w * .79, skyY = h * .17;
+      p.fill(244, 220, 169, daylight * 255);
+      p.circle(skyX, skyY, 39);
+      const context = p.drawingContext;
+      context.save();
+      context.beginPath();
+      context.arc(skyX, skyY, 17.5, 0, Math.PI * 2);
+      context.moveTo(skyX + 5.5, skyY - 5);
+      context.arc(skyX - 10, skyY - 5, 15.5, 0, Math.PI * 2);
+      context.clip('evenodd');
+      p.fill(232, 204, 160, night * 255);
+      p.circle(skyX, skyY, 35);
+      context.restore();
       hill('#627878', .48, .29, .53, .39);
       hill('#4e696a', .54, .38, .47, .53);
       hill('#3b5b5e', .62, .48, .56, .6);
